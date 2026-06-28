@@ -30,6 +30,12 @@ A CLI tool to query, browse, and download patient cohorts from The Cancer Imagin
 - `tcia-cohort-forge` CLI entry point
 - Public TCIA API by default, configurable base URL + auth token
 
+## GitHub Presentation Update
+
+- Added reproducible public-workflow demo media generation through `scripts/generate_demo_media.py`.
+- Added README demo GIF, demo regeneration commands, and demo asset policy documentation.
+- Added optional `media` dependencies for local asset regeneration.
+
 ## CLI Commands
 
 | Command | Description |
