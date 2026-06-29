@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, cast
 
 import httpx
 
@@ -199,7 +199,7 @@ class NbiaClient:
     # --- Downloads ---
 
     def download_series(self, series_uid: str) -> bytes:
-        return self._get("getImage", {"SeriesInstanceUID": series_uid}, raw=True)
+        return cast(bytes, self._get("getImage", {"SeriesInstanceUID": series_uid}, raw=True))
 
     # --- Utilities ---
 

@@ -79,16 +79,16 @@ class CohortBuilder:
             return []
 
         if criteria.patient_ids:
-            patients: list[PatientInfo] = []
+            matched_patients: list[PatientInfo] = []
             for pid in criteria.patient_ids:
-                patients.extend(self.client.get_patients(collection, patient_id=pid))
-            return patients
+                matched_patients.extend(self.client.get_patients(collection, patient_id=pid))
+            return matched_patients
 
         if criteria.modalities:
-            patients: list[PatientInfo] = []
+            modality_patients: list[PatientInfo] = []
             for mod in criteria.modalities:
-                patients.extend(self.client.get_patients_by_modality(collection, mod))
-            return patients
+                modality_patients.extend(self.client.get_patients_by_modality(collection, mod))
+            return modality_patients
 
         return self.client.get_patients(collection)
 
