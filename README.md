@@ -1,22 +1,35 @@
-# tcia-cohort-forge
+﻿# tcia-cohort-forge
 
 [![CI](https://github.com/AKaturu/tcia-cohort-forge/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/AKaturu/tcia-cohort-forge/actions/workflows/ci.yml)
 [![Python](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Ruff](https://img.shields.io/badge/code%20style-ruff-261230.svg)](https://github.com/astral-sh/ruff)
 
-> **Validation status:** Software functionality has been tested using synthetic data. This project has not undergone clinical validation.
-
 **Query, browse, and download patient cohorts from The Cancer Imaging Archive (TCIA).**
 
-`tcia-cohort-forge` is a CLI tool that wraps the NBIA v4 REST API to let you discover TCIA collections, search for patients and studies, filter by modality/body part, and download DICOM series — all from the command line.
+`tcia-cohort-forge` is a CLI tool that wraps the NBIA v4 REST API to let you discover TCIA collections, search for patients and studies, filter by modality/body part, and download DICOM series â€” all from the command line.
 
 ![tcia-cohort-forge public workflow demo](docs/assets/demo.gif)
+
+## Evidence Status
+
+| Evidence | Status |
+|---|---|
+| Unit and integration tests | Complete |
+| Synthetic end-to-end evaluation | Complete |
+| Public-data evaluation | Public TCIA API workflow smoke-tested with mocked tests; live restricted collections require user credentials |
+| Independent expert review | Not completed |
+| Institutional validation | Not completed |
+| Prospective clinical validation | Not completed |
+
+This software is a research prototype and is not intended for independent clinical decision-making.
 
 ## Quick Start
 
 ```bash
-pip install tcia-cohort-forge
+git clone https://github.com/AKaturu/tcia-cohort-forge.git
+cd tcia-cohort-forge
+python -m pip install -e .
 
 # List all collections
 tcia-cohort-forge collections
