@@ -100,6 +100,8 @@ def export_manifest_json(manifest: CohortManifest, path: str) -> str:
         "total_patients": manifest.total_patients,
         "total_studies": manifest.total_studies,
         "total_series": manifest.total_series,
+        "patients": [p.model_dump() for p in manifest.patients],
+        "studies": [s.model_dump() for s in manifest.studies],
         "series": [s.model_dump() for s in manifest.series],
     }
     with open(path, "w") as f:

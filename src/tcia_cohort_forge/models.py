@@ -93,11 +93,7 @@ class CohortCriteria(BaseModel):
     patient_ids: list[str] = Field(default_factory=list)
     study_uids: list[str] = Field(default_factory=list)
     series_uids: list[str] = Field(default_factory=list)
-    patient_sex: str | None = None
-    manufacturer: str | None = None
-    min_studies: int | None = None
-    max_age: int | None = None
-    min_age: int | None = None
+
 
 
 class CohortManifest(BaseModel):

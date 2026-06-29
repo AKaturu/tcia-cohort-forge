@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json as jmod
 import os
 
 import typer
@@ -235,12 +236,6 @@ def search(
     body_part: str | None = typer.Option(
         None, "--body-part", "-b", help="Filter by body part examined"
     ),
-    patient_sex: str | None = typer.Option(
-        None, "--sex", help="Filter by patient sex (Male/Female)"
-    ),
-    manufacturer: str | None = typer.Option(
-        None, "--manufacturer", help="Filter by equipment manufacturer"
-    ),
     output: str | None = typer.Option(
         None, "--output", "-o", help="Export cohort manifest to CSV"
     ),
@@ -254,11 +249,6 @@ def search(
         criteria.modalities = [m.strip() for m in modality.split(",")]
     if body_part:
         criteria.body_parts = [b.strip() for b in body_part.split(",")]
-    if patient_sex:
-        criteria.patient_sex = patient_sex
-    if manufacturer:
-        criteria.manufacturer = manufacturer
-
     with Progress(
         SpinnerColumn(),
         TextColumn("[progress.description]{task.description}"),
@@ -352,8 +342,6 @@ def download_cohort(
     ),
 ) -> None:
     """Download all series in a cohort manifest."""
-    import json as jmod
-
     with open(manifest_file) as f:
         data = jmod.load(f)
 

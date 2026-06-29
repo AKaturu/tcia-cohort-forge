@@ -127,10 +127,7 @@ def test_get_manufacturer_counts(client: NbiaClient):
 
 
 def test_download_series(client: NbiaClient):
-    client._client.get = MagicMock()
-    client._client.get.return_value = MagicMock()
-    client._client.get.return_value.content = b"fake-zip-content"
-    client._client.get.return_value.raise_for_status = MagicMock()
+    client._get.return_value = b"fake-zip-content"
 
     data = client.download_series("1.2.3.4")
     assert data == b"fake-zip-content"
