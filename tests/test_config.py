@@ -9,7 +9,6 @@ def test_settings_defaults():
     assert s.auth_token is None
     assert s.output_dir == "downloads"
     assert s.request_timeout == 60
-    assert s.max_retries == 3
 
 
 def test_get_api_url():

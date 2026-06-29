@@ -24,7 +24,7 @@ class CohortDownloader:
         for s in manifest.series:
             if dry_run:
                 result.total_series += 1
-                result.total_bytes += 0
+                result.total_bytes += s.estimated_size_bytes if hasattr(s, 'estimated_size_bytes') else 0
                 continue
 
             try:

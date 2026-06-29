@@ -149,10 +149,14 @@ def test_export_manifest_csv():
 def test_export_manifest_json():
     manifest = CohortManifest(
         criteria=CohortCriteria(collection="TEST"),
+        patients=[PatientInfo(patient_id="P1")],
+        studies=[StudyInfo(study_instance_uid="S1")],
         series=[
             SeriesInfo(series_instance_uid="X1", modality="CT", patient_id="P1"),
             SeriesInfo(series_instance_uid="X2", modality="MR", patient_id="P1"),
         ],
+        total_patients=1,
+        total_studies=1,
         total_series=2,
     )
     with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
@@ -164,6 +168,10 @@ def test_export_manifest_json():
             data = json.load(f)
         assert data["total_series"] == 2
         assert len(data["series"]) == 2
+        assert len(data["patients"]) == 1
+        assert len(data["studies"]) == 1
+        assert data["patients"][0]["patient_id"] == "P1"
+        assert data["studies"][0]["study_instance_uid"] == "S1"
         assert data["series"][0]["modality"] == "CT"
         assert data["criteria"]["collection"] == "TEST"
     finally:

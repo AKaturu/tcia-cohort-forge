@@ -123,7 +123,6 @@ def test_cohort_criteria_full():
         collection="TCGA-LUAD",
         modalities=["CT", "PT"],
         body_parts=["CHEST"],
-        patient_sex="Male",
     )
     assert cc.collection == "TCGA-LUAD"
     assert len(cc.modalities) == 2

@@ -10,8 +10,6 @@ class Settings:
     auth_token: str | None = None
     output_dir: str = "downloads"
     request_timeout: int = 60
-    max_retries: int = 3
-    default_page_size: int = 50
     user_agent: str = "tcia-cohort-forge/0.1.0"
 
     def get_api_url(self, endpoint: str) -> str:

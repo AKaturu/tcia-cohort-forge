@@ -85,8 +85,10 @@ class CohortBuilder:
             return patients
 
         if criteria.modalities:
-            first_mod = criteria.modalities[0]
-            return self.client.get_patients_by_modality(collection, first_mod)
+            patients: list[PatientInfo] = []
+            for mod in criteria.modalities:
+                patients.extend(self.client.get_patients_by_modality(collection, mod))
+            return patients
 
         return self.client.get_patients(collection)
 

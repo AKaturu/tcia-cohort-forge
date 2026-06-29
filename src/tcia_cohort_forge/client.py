@@ -29,30 +29,18 @@ class NbiaClient:
         if self.settings.auth_token:
             self._client.headers["Authorization"] = f"Bearer {self.settings.auth_token}"
 
-    def _get(self, endpoint: str, params: dict[str, Any] | None = None) -> Any:
+    def _get(self, endpoint: str, params: dict[str, Any] | None = None, raw: bool = False) -> Any:
         url = self.settings.get_api_url(endpoint)
         p = params or {}
-        p.setdefault("format", "json")
+        if not raw:
+            p.setdefault("format", "json")
         resp = self._client.get(url, params=p)
         resp.raise_for_status()
+        if raw:
+            return resp.content
         if not resp.text.strip():
             return []
         return resp.json()
-
-    def _post_form(
-        self, endpoint: str, data: dict[str, Any] | None = None
-    ) -> Any:
-        url = self.settings.get_api_url(endpoint)
-        d = data or {}
-        d.setdefault("format", "json")
-        resp = self._client.post(url, data=d)
-        resp.raise_for_status()
-        if not resp.text.strip():
-            return []
-        ct = resp.headers.get("content-type", "")
-        if "json" in ct:
-            return resp.json()
-        return []
 
     # --- Collections ---
 
@@ -211,11 +199,7 @@ class NbiaClient:
     # --- Downloads ---
 
     def download_series(self, series_uid: str) -> bytes:
-        url = self.settings.get_api_url("getImage")
-        params = {"SeriesInstanceUID": series_uid}
-        resp = self._client.get(url, params=params)
-        resp.raise_for_status()
-        return resp.content
+        return self._get("getImage", {"SeriesInstanceUID": series_uid}, raw=True)
 
     # --- Utilities ---
 

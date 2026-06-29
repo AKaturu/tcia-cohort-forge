@@ -5,6 +5,8 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Ruff](https://img.shields.io/badge/code%20style-ruff-261230.svg)](https://github.com/astral-sh/ruff)
 
+> **Validation status:** Software functionality has been tested using synthetic data. This project has not undergone clinical validation.
+
 **Query, browse, and download patient cohorts from The Cancer Imaging Archive (TCIA).**
 
 `tcia-cohort-forge` is a CLI tool that wraps the NBIA v4 REST API to let you discover TCIA collections, search for patients and studies, filter by modality/body part, and download DICOM series — all from the command line.
