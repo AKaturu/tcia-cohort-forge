@@ -48,4 +48,5 @@ disallow_any_unimported = false
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-v --tb=short --cov=src --cov-report=term-missing"
+pythonpath = ["src"]
+addopts = "-v --tb=short --cov=src --cov-report=term-missing --basetemp=.pytest-tmp"
