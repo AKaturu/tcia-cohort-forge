@@ -9,7 +9,9 @@
 
 `tcia-cohort-forge` is a CLI tool that wraps the NBIA v4 REST API to let you discover TCIA collections, search for patients and studies, filter by modality/body part, and download DICOM series â€” all from the command line.
 
-![tcia-cohort-forge public workflow demo](docs/assets/demo.gif)
+[![tcia-cohort-forge public workflow demo](docs/assets/demo.gif)](https://cdn.jsdelivr.net/gh/AKaturu/tcia-cohort-forge@master/docs/assets/demo.mp4)
+
+[Play the full demo video](https://cdn.jsdelivr.net/gh/AKaturu/tcia-cohort-forge@master/docs/assets/demo.mp4)
 
 ## Evidence Status
 

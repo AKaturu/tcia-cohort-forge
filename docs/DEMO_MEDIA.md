@@ -15,4 +15,4 @@ python -m pip install -e ".[media]"
 python scripts/generate_demo_media.py
 ```
 
-The generator renders a stable final frame and duplicates it for the GIF/MP4 so the demo does not flicker on GitHub.
+The generator creates a three-step guided walkthrough of collection discovery, cohort filtering, and manifest-oriented downloads. The GIF is the inline GitHub preview; the MP4 is the full browser-playable clip.
