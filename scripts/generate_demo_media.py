@@ -109,17 +109,37 @@ def render_frame() -> Image.Image:
     return image
 
 
+def guided_frame(base: Image.Image, step: int) -> Image.Image:
+    titles = (
+        "1/3 Discover public collections and available metadata",
+        "2/3 Filter a cohort before requesting any downloads",
+        "3/3 Write a manifest and organize approved series downloads",
+    )
+    focus_boxes = ((44, 126, 446, 612), (486, 126, 836, 612), (876, 126, 1236, 612))
+    dimmed = Image.blend(base, Image.new("RGB", base.size, "#0b1f1a"), 0.35)
+    focus = focus_boxes[step]
+    dimmed.paste(base.crop(focus), focus)
+    draw = ImageDraw.Draw(dimmed)
+    draw.rounded_rectangle(focus, radius=18, outline="#34d399", width=4)
+    draw.rounded_rectangle((44, 98, 1236, 118), radius=8, fill="#e3f5ed")
+    put(draw, (62, 99), titles[step], 16, "#116149", True)
+    return dimmed
+
+
 def main() -> None:
     ASSET_DIR.mkdir(parents=True, exist_ok=True)
-    frame = render_frame()
-    frame.save(ASSET_DIR / "demo-poster.png")
-    frames = [frame.copy() for _ in range(4)]
+    base = render_frame()
+    frames = [guided_frame(base, step) for step in range(3)]
+    frames[0].save(ASSET_DIR / "demo-poster.png")
     frames[0].save(
-        ASSET_DIR / "demo.gif", save_all=True, append_images=frames[1:], duration=650, loop=0
+        ASSET_DIR / "demo.gif", save_all=True, append_images=frames[1:], duration=3000, loop=0
     )
-    with imageio.get_writer(ASSET_DIR / "demo.mp4", fps=1, codec="libx264", quality=8) as writer:
-        for still in frames:
-            writer.append_data(np.asarray(still))
+    with imageio.get_writer(
+        ASSET_DIR / "demo.mp4", fps=6, codec="libx264", quality=8, macro_block_size=None
+    ) as writer:
+        for frame in frames:
+            for _ in range(18):
+                writer.append_data(np.asarray(frame))
 
 
 if __name__ == "__main__":
