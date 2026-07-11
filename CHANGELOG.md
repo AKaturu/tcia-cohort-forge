@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Pinned every GitHub Action dependency to an immutable commit SHA.
 - Reported optional series-size lookup failures instead of silently suppressing them.
 - Correct manifest `StudyDate` values by joining series to study metadata
 - Deduplicate patients, studies, and series returned through overlapping filters
