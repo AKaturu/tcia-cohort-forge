@@ -20,7 +20,7 @@ from tcia_cohort_forge.exporter import (
     export_series_csv,
     export_studies_csv,
 )
-from tcia_cohort_forge.models import CohortCriteria, SeriesInfo
+from tcia_cohort_forge.models import CohortCriteria, CohortManifest, SeriesInfo
 
 app = typer.Typer(
     name="tcia-cohort-forge",
@@ -47,14 +47,14 @@ def collections(
     ),
 ) -> None:
     """List all TCIA collections with patient counts."""
-    with Progress(
-        SpinnerColumn(),
-        TextColumn("[progress.description]{task.description}"),
-        console=console,
-    ) as progress:
-        progress.add_task(description="Fetching collections...", total=None)
-        client = _get_client()
-        cols = client.get_collections()
+    with _get_client() as client:
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            console=console,
+        ) as progress:
+            progress.add_task(description="Fetching collections...", total=None)
+            cols = client.get_collections()
 
     if not cols:
         err_console.print("[yellow]No collections found.[/yellow]")
@@ -87,18 +87,18 @@ def patients(
     ),
 ) -> None:
     """List patients in a collection."""
-    with Progress(
-        SpinnerColumn(),
-        TextColumn("[progress.description]{task.description}"),
-        console=console,
-    ) as progress:
-        progress.add_task(description="Fetching patients...", total=None)
-        client = _get_client()
+    with _get_client() as client:
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            console=console,
+        ) as progress:
+            progress.add_task(description="Fetching patients...", total=None)
 
-        if modality:
-            pats = client.get_patients_by_modality(collection, modality)
-        else:
-            pats = client.get_patients(collection)
+            if modality:
+                pats = client.get_patients_by_modality(collection, modality)
+            else:
+                pats = client.get_patients(collection)
 
     if not pats:
         err_console.print(f"[yellow]No patients found in '{collection}'.[/yellow]")
@@ -133,14 +133,14 @@ def studies(
     ),
 ) -> None:
     """List studies in a collection."""
-    with Progress(
-        SpinnerColumn(),
-        TextColumn("[progress.description]{task.description}"),
-        console=console,
-    ) as progress:
-        progress.add_task(description="Fetching studies...", total=None)
-        client = _get_client()
-        sts = client.get_studies(collection, patient_id=patient)
+    with _get_client() as client:
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            console=console,
+        ) as progress:
+            progress.add_task(description="Fetching studies...", total=None)
+            sts = client.get_studies(collection, patient_id=patient)
 
     if not sts:
         err_console.print(f"[yellow]No studies found in '{collection}'.[/yellow]")
@@ -185,14 +185,14 @@ def series(
     ),
 ) -> None:
     """List DICOM series in a collection."""
-    with Progress(
-        SpinnerColumn(),
-        TextColumn("[progress.description]{task.description}"),
-        console=console,
-    ) as progress:
-        progress.add_task(description="Fetching series...", total=None)
-        client = _get_client()
-        ser = client.get_series(collection, patient_id=patient)
+    with _get_client() as client:
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            console=console,
+        ) as progress:
+            progress.add_task(description="Fetching series...", total=None)
+            ser = client.get_series(collection, patient_id=patient)
 
     if modality:
         mod_lower = modality.lower()
@@ -249,14 +249,14 @@ def search(
         criteria.modalities = [m.strip() for m in modality.split(",")]
     if body_part:
         criteria.body_parts = [b.strip() for b in body_part.split(",")]
-    with Progress(
-        SpinnerColumn(),
-        TextColumn("[progress.description]{task.description}"),
-        console=console,
-    ) as progress:
-        progress.add_task(description="Building cohort...", total=None)
-        builder = CohortBuilder()
-        manifest = builder.build(criteria)
+    with _get_client() as client:
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            console=console,
+        ) as progress:
+            progress.add_task(description="Building cohort...", total=None)
+            manifest = CohortBuilder(client).build(criteria)
 
     if manifest.total_series == 0:
         err_console.print(
@@ -300,24 +300,23 @@ def download(
     ),
 ) -> None:
     """Download a single DICOM series."""
-    client = _get_client()
-    downloader = CohortDownloader(client)
-
     info = SeriesInfo(series_instance_uid=series_uid)
-    try:
-        size = client.get_series_size(series_uid)
-        info.num_images = size.image_count
-        info.series_size = size.series_size
-    except Exception:
-        pass
+    with _get_client() as client:
+        downloader = CohortDownloader(client)
+        try:
+            size = client.get_series_size(series_uid)
+            info.num_images = size.image_count
+            info.series_size = size.series_size
+        except Exception:
+            pass
 
-    with Progress(
-        SpinnerColumn(),
-        TextColumn("[progress.description]{task.description}"),
-        console=console,
-    ) as progress:
-        progress.add_task(description="Downloading series...", total=None)
-        result = downloader.download_series(info, output_dir=output_dir)
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            console=console,
+        ) as progress:
+            progress.add_task(description="Downloading series...", total=None)
+            result = downloader.download_series(info, output_dir=output_dir)
 
     if result.errors:
         for err in result.errors:
@@ -342,28 +341,27 @@ def download_cohort(
     ),
 ) -> None:
     """Download all series in a cohort manifest."""
-    with open(manifest_file) as f:
+    with open(manifest_file, encoding="utf-8") as f:
         data = jmod.load(f)
 
     series_list = [SeriesInfo(**s) for s in data.get("series", [])]
     manifest = CohortCriteria(collection="")
-    from tcia_cohort_forge.models import CohortManifest
-
     cm = CohortManifest(criteria=manifest, series=series_list)
     cm.total_series = len(series_list)
 
-    client = _get_client()
-    downloader = CohortDownloader(client)
-
-    with Progress(
-        SpinnerColumn(),
-        TextColumn("[progress.description]{task.description}"),
-        console=console,
-    ) as progress:
-        progress.add_task(
-            description="Downloading cohort...", total=cm.total_series
-        )
-        result = downloader.download_manifest(cm, output_dir=output_dir, dry_run=dry_run)
+    with _get_client() as client:
+        downloader = CohortDownloader(client)
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            console=console,
+        ) as progress:
+            progress.add_task(
+                description="Downloading cohort...", total=cm.total_series
+            )
+            result = downloader.download_manifest(
+                cm, output_dir=output_dir, dry_run=dry_run
+            )
 
     if result.errors:
         for err in result.errors:
@@ -385,14 +383,14 @@ def info(
     collection: str = typer.Argument(..., help="Collection name"),
 ) -> None:
     """Show summary info about a collection."""
-    with Progress(
-        SpinnerColumn(),
-        TextColumn("[progress.description]{task.description}"),
-        console=console,
-    ) as progress:
-        progress.add_task(description="Fetching collection info...", total=None)
-        builder = CohortBuilder()
-        summary = builder.get_collection_summary(collection)
+    with _get_client() as client:
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            console=console,
+        ) as progress:
+            progress.add_task(description="Fetching collection info...", total=None)
+            summary = CohortBuilder(client).get_collection_summary(collection)
 
     console.print(f"[bold]Collection:[/bold] {collection}")
     console.print(f"[bold]Patients:[/bold] {summary['patients']}")
