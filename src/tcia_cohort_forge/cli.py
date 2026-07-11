@@ -285,8 +285,8 @@ def download(
             size = client.get_series_size(series_uid)
             info.num_images = size.image_count
             info.series_size = size.series_size
-        except Exception:
-            pass
+        except Exception as exc:
+            console.print(f"[yellow]Warning: could not retrieve series size: {exc}[/yellow]")
 
         with Progress(
             SpinnerColumn(),
