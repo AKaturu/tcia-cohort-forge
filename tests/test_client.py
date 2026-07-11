@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Iterator
 from unittest.mock import MagicMock
 
 import pytest
@@ -9,11 +10,22 @@ from tcia_cohort_forge.config import Settings
 
 
 @pytest.fixture
-def client() -> NbiaClient:
+def client() -> Iterator[NbiaClient]:
     settings = Settings(api_base_url="https://fake-tcia.example.com/v4")
     c = NbiaClient(settings)
     c._get = MagicMock()
-    return c
+    yield c
+    c.close()
+
+
+def test_client_context_manager_closes_http_pool(monkeypatch):
+    http_client = MagicMock()
+    monkeypatch.setattr("tcia_cohort_forge.client.httpx.Client", lambda **_kwargs: http_client)
+
+    with NbiaClient(Settings(api_base_url="https://example.invalid")) as managed:
+        assert managed._client is http_client
+
+    http_client.close.assert_called_once_with()
 
 
 def test_get_collections(client: NbiaClient):

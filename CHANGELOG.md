@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased
+
+- Pinned every GitHub Action dependency to an immutable commit SHA.
+- Reported optional series-size lookup failures instead of silently suppressing them.
+- Correct manifest `StudyDate` values by joining series to study metadata
+- Deduplicate patients, studies, and series returned through overlapping filters
+- Reject path traversal and symbolic links before extracting downloaded archives
+- Close NBIA HTTP clients deterministically in API and CLI workflows
+- Add command-level tests for all eight CLI commands
+- Publish PEP 561 typing metadata and remove blanket mypy import suppression
+- Add Python 3.13 CI coverage and modern SPDX package metadata
+
 ## v0.1.0 (2026-06-28)
 
 - Initial release with NBIA v4 REST API client

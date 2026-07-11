@@ -109,3 +109,28 @@ def test_extract_non_zip_fallback(downloader: CohortDownloader):
         dcm_dir = os.path.join(tmpdir, "dicom")
         files = os.listdir(dcm_dir)
         assert len(files) == 1
+
+
+@pytest.mark.parametrize("member", ["../outside.dcm", "nested/../../outside.dcm", "C:/outside.dcm"])
+def test_extract_zip_rejects_path_traversal(tmp_path, member: str):
+    zip_buffer = BytesIO()
+    with zipfile.ZipFile(zip_buffer, "w") as zf:
+        zf.writestr(member, b"not-safe")
+
+    with pytest.raises(ValueError, match="Unsafe ZIP member path"):
+        CohortDownloader._extract_zip(zip_buffer.getvalue(), str(tmp_path / "target"))
+
+    assert not (tmp_path / "outside.dcm").exists()
+
+
+def test_extract_zip_validates_all_members_before_writing(tmp_path):
+    zip_buffer = BytesIO()
+    with zipfile.ZipFile(zip_buffer, "w") as zf:
+        zf.writestr("safe.dcm", b"safe")
+        zf.writestr("../outside.dcm", b"not-safe")
+
+    target = tmp_path / "target"
+    with pytest.raises(ValueError, match="Unsafe ZIP member path"):
+        CohortDownloader._extract_zip(zip_buffer.getvalue(), str(target))
+
+    assert not (target / "safe.dcm").exists()

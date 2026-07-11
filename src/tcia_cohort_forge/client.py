@@ -29,6 +29,16 @@ class NbiaClient:
         if self.settings.auth_token:
             self._client.headers["Authorization"] = f"Bearer {self.settings.auth_token}"
 
+    def close(self) -> None:
+        """Release the underlying HTTP connection pool."""
+        self._client.close()
+
+    def __enter__(self) -> NbiaClient:
+        return self
+
+    def __exit__(self, *_exc_info: object) -> None:
+        self.close()
+
     def _get(self, endpoint: str, params: dict[str, Any] | None = None, raw: bool = False) -> Any:
         url = self.settings.get_api_url(endpoint)
         p = params or {}
@@ -94,14 +104,11 @@ class NbiaClient:
             for item in raw
         ]
 
-    def get_patients_by_modality(
-        self, collection: str, modality: str
-    ) -> list[PatientInfo]:
+    def get_patients_by_modality(self, collection: str, modality: str) -> list[PatientInfo]:
         params = {"Collection": collection, "Modality": modality}
         raw = self._get("getPatientByCollectionAndModality", params)
         return [
-            PatientInfo(patient_id=item.get("PatientId", ""), collection=collection)
-            for item in raw
+            PatientInfo(patient_id=item.get("PatientId", ""), collection=collection) for item in raw
         ]
 
     @staticmethod
@@ -156,8 +163,7 @@ class NbiaClient:
         raw = self._get("getSeries", params)
         return [
             SeriesInfo(
-                series_instance_uid=item.get("SeriesInstanceUID", "")
-                or item.get("SeriesUID", ""),
+                series_instance_uid=item.get("SeriesInstanceUID", "") or item.get("SeriesUID", ""),
                 series_description=item.get("SeriesDescription", ""),
                 series_date=item.get("SeriesDate", ""),
                 series_number=item.get("SeriesNumber", ""),

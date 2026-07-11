@@ -95,7 +95,6 @@ class CohortCriteria(BaseModel):
     series_uids: list[str] = Field(default_factory=list)
 
 
-
 class CohortManifest(BaseModel):
     criteria: CohortCriteria = Field(default_factory=CohortCriteria)
     collections: list[str] = Field(default_factory=list)
