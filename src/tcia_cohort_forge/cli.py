@@ -42,9 +42,7 @@ def _main() -> None:
 
 @app.command()
 def collections(
-    output: str | None = typer.Option(
-        None, "--output", "-o", help="Export to CSV file"
-    ),
+    output: str | None = typer.Option(None, "--output", "-o", help="Export to CSV file"),
 ) -> None:
     """List all TCIA collections with patient counts."""
     with _get_client() as client:
@@ -79,12 +77,8 @@ def collections(
 @app.command()
 def patients(
     collection: str = typer.Argument(..., help="Collection name"),
-    modality: str | None = typer.Option(
-        None, "--modality", "-m", help="Filter by modality"
-    ),
-    output: str | None = typer.Option(
-        None, "--output", "-o", help="Export to CSV file"
-    ),
+    modality: str | None = typer.Option(None, "--modality", "-m", help="Filter by modality"),
+    output: str | None = typer.Option(None, "--output", "-o", help="Export to CSV file"),
 ) -> None:
     """List patients in a collection."""
     with _get_client() as client:
@@ -125,12 +119,8 @@ def patients(
 @app.command()
 def studies(
     collection: str = typer.Argument(..., help="Collection name"),
-    patient: str | None = typer.Option(
-        None, "--patient", "-p", help="Filter by patient ID"
-    ),
-    output: str | None = typer.Option(
-        None, "--output", "-o", help="Export to CSV file"
-    ),
+    patient: str | None = typer.Option(None, "--patient", "-p", help="Filter by patient ID"),
+    output: str | None = typer.Option(None, "--output", "-o", help="Export to CSV file"),
 ) -> None:
     """List studies in a collection."""
     with _get_client() as client:
@@ -174,15 +164,11 @@ def studies(
 @app.command()
 def series(
     collection: str = typer.Argument(..., help="Collection name"),
-    patient: str | None = typer.Option(
-        None, "--patient", "-p", help="Filter by patient ID"
-    ),
+    patient: str | None = typer.Option(None, "--patient", "-p", help="Filter by patient ID"),
     modality: str | None = typer.Option(
         None, "--modality", "-m", help="Filter by modality (CT, MR, etc.)"
     ),
-    output: str | None = typer.Option(
-        None, "--output", "-o", help="Export to CSV file"
-    ),
+    output: str | None = typer.Option(None, "--output", "-o", help="Export to CSV file"),
 ) -> None:
     """List DICOM series in a collection."""
     with _get_client() as client:
@@ -230,15 +216,11 @@ def series(
 @app.command()
 def search(
     collection: str = typer.Argument(..., help="Collection name"),
-    modality: str | None = typer.Option(
-        None, "--modality", "-m", help="Filter by modality"
-    ),
+    modality: str | None = typer.Option(None, "--modality", "-m", help="Filter by modality"),
     body_part: str | None = typer.Option(
         None, "--body-part", "-b", help="Filter by body part examined"
     ),
-    output: str | None = typer.Option(
-        None, "--output", "-o", help="Export cohort manifest to CSV"
-    ),
+    output: str | None = typer.Option(None, "--output", "-o", help="Export cohort manifest to CSV"),
     json_output: str | None = typer.Option(
         None, "--json", "-j", help="Export cohort manifest to JSON"
     ),
@@ -259,9 +241,7 @@ def search(
             manifest = CohortBuilder(client).build(criteria)
 
     if manifest.total_series == 0:
-        err_console.print(
-            "[yellow]No matching series found for the given criteria.[/yellow]"
-        )
+        err_console.print("[yellow]No matching series found for the given criteria.[/yellow]")
         raise typer.Exit(1)
 
     console.print(
@@ -295,9 +275,7 @@ def search(
 @app.command()
 def download(
     series_uid: str = typer.Argument(..., help="SeriesInstanceUID to download"),
-    output_dir: str = typer.Option(
-        "downloads", "--output-dir", "-o", help="Output directory"
-    ),
+    output_dir: str = typer.Option("downloads", "--output-dir", "-o", help="Output directory"),
 ) -> None:
     """Download a single DICOM series."""
     info = SeriesInfo(series_instance_uid=series_uid)
@@ -330,15 +308,9 @@ def download(
 
 @app.command()
 def download_cohort(
-    manifest_file: str = typer.Argument(
-        ..., help="Path to JSON manifest file from search --json"
-    ),
-    output_dir: str = typer.Option(
-        "downloads", "--output-dir", "-o", help="Output directory"
-    ),
-    dry_run: bool = typer.Option(
-        False, "--dry-run", "-n", help="Show what would be downloaded"
-    ),
+    manifest_file: str = typer.Argument(..., help="Path to JSON manifest file from search --json"),
+    output_dir: str = typer.Option("downloads", "--output-dir", "-o", help="Output directory"),
+    dry_run: bool = typer.Option(False, "--dry-run", "-n", help="Show what would be downloaded"),
 ) -> None:
     """Download all series in a cohort manifest."""
     with open(manifest_file, encoding="utf-8") as f:
@@ -356,21 +328,15 @@ def download_cohort(
             TextColumn("[progress.description]{task.description}"),
             console=console,
         ) as progress:
-            progress.add_task(
-                description="Downloading cohort...", total=cm.total_series
-            )
-            result = downloader.download_manifest(
-                cm, output_dir=output_dir, dry_run=dry_run
-            )
+            progress.add_task(description="Downloading cohort...", total=cm.total_series)
+            result = downloader.download_manifest(cm, output_dir=output_dir, dry_run=dry_run)
 
     if result.errors:
         for err in result.errors:
             err_console.print(f"[red]{err}[/red]")
 
     if dry_run:
-        console.print(
-            f"[yellow]Dry-run: {result.total_series} series would be downloaded[/yellow]"
-        )
+        console.print(f"[yellow]Dry-run: {result.total_series} series would be downloaded[/yellow]")
     else:
         console.print(
             f"[green]Downloaded {result.total_files} files from {result.total_series} series"

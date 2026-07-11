@@ -52,9 +52,7 @@ class CohortDownloader:
                 result.total_series += 1
                 result.total_bytes += len(zip_data)
             except Exception as e:
-                result.errors.append(
-                    f"Series {s.series_instance_uid}: {e}"
-                )
+                result.errors.append(f"Series {s.series_instance_uid}: {e}")
 
         return result
 
@@ -75,9 +73,7 @@ class CohortDownloader:
             result.total_series += 1
             result.total_bytes += len(zip_data)
         except Exception as e:
-            result.errors.append(
-                f"Series {series_info.series_instance_uid}: {e}"
-            )
+            result.errors.append(f"Series {series_info.series_instance_uid}: {e}")
 
         return result
 

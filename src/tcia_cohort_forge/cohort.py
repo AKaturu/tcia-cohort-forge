@@ -53,9 +53,7 @@ class CohortBuilder:
 
         studies: list[StudyInfo] = []
         for pid in patient_ids:
-            studies.extend(
-                self.client.get_studies(criteria.collection, patient_id=pid)
-            )
+            studies.extend(self.client.get_studies(criteria.collection, patient_id=pid))
         studies = _unique_by(studies, lambda study: study.study_instance_uid)
         manifest.studies = studies
         manifest.total_studies = len(studies)
@@ -76,9 +74,7 @@ class CohortBuilder:
 
         if criteria.body_parts:
             bp_lower = {b.lower() for b in criteria.body_parts}
-            series = [
-                s for s in series if s.body_part_examined.lower() in bp_lower
-            ]
+            series = [s for s in series if s.body_part_examined.lower() in bp_lower]
 
         series = _unique_by(series, lambda item: item.series_instance_uid)
         manifest.series = series

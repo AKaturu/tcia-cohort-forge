@@ -104,14 +104,11 @@ class NbiaClient:
             for item in raw
         ]
 
-    def get_patients_by_modality(
-        self, collection: str, modality: str
-    ) -> list[PatientInfo]:
+    def get_patients_by_modality(self, collection: str, modality: str) -> list[PatientInfo]:
         params = {"Collection": collection, "Modality": modality}
         raw = self._get("getPatientByCollectionAndModality", params)
         return [
-            PatientInfo(patient_id=item.get("PatientId", ""), collection=collection)
-            for item in raw
+            PatientInfo(patient_id=item.get("PatientId", ""), collection=collection) for item in raw
         ]
 
     @staticmethod
@@ -166,8 +163,7 @@ class NbiaClient:
         raw = self._get("getSeries", params)
         return [
             SeriesInfo(
-                series_instance_uid=item.get("SeriesInstanceUID", "")
-                or item.get("SeriesUID", ""),
+                series_instance_uid=item.get("SeriesInstanceUID", "") or item.get("SeriesUID", ""),
                 series_description=item.get("SeriesDescription", ""),
                 series_date=item.get("SeriesDate", ""),
                 series_number=item.get("SeriesNumber", ""),

@@ -92,9 +92,7 @@ def test_build_with_body_part_filter(builder: CohortBuilder, mock_client: MagicM
     assert manifest.series[0].body_part_examined == "CHEST"
 
 
-def test_build_multiple_patients_single_study_each(
-    builder: CohortBuilder, mock_client: MagicMock
-):
+def test_build_multiple_patients_single_study_each(builder: CohortBuilder, mock_client: MagicMock):
     mock_client.get_patients.return_value = [
         PatientInfo(patient_id="P1"),
         PatientInfo(patient_id="P2"),
