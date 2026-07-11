@@ -7,6 +7,8 @@
 - Reject path traversal and symbolic links before extracting downloaded archives
 - Close NBIA HTTP clients deterministically in API and CLI workflows
 - Add command-level tests for all eight CLI commands
+- Publish PEP 561 typing metadata and remove blanket mypy import suppression
+- Add Python 3.13 CI coverage and modern SPDX package metadata
 
 ## v0.1.0 (2026-06-28)
 
