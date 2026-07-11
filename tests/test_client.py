@@ -16,6 +16,16 @@ def client() -> NbiaClient:
     return c
 
 
+def test_client_context_manager_closes_http_pool(monkeypatch):
+    http_client = MagicMock()
+    monkeypatch.setattr("tcia_cohort_forge.client.httpx.Client", lambda **_kwargs: http_client)
+
+    with NbiaClient(Settings(api_base_url="https://example.invalid")) as managed:
+        assert managed._client is http_client
+
+    http_client.close.assert_called_once_with()
+
+
 def test_get_collections(client: NbiaClient):
     client._get.return_value = [
         {"collection": "TCGA-LUAD", "count": 500, "Authorized": "1"},

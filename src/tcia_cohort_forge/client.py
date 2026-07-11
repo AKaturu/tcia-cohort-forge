@@ -29,6 +29,16 @@ class NbiaClient:
         if self.settings.auth_token:
             self._client.headers["Authorization"] = f"Bearer {self.settings.auth_token}"
 
+    def close(self) -> None:
+        """Release the underlying HTTP connection pool."""
+        self._client.close()
+
+    def __enter__(self) -> NbiaClient:
+        return self
+
+    def __exit__(self, *_exc_info: object) -> None:
+        self.close()
+
     def _get(self, endpoint: str, params: dict[str, Any] | None = None, raw: bool = False) -> Any:
         url = self.settings.get_api_url(endpoint)
         p = params or {}

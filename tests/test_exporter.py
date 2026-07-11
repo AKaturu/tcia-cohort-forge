@@ -117,13 +117,15 @@ def test_export_manifest_csv():
     manifest = CohortManifest(
         criteria=CohortCriteria(collection="TEST"),
         patients=[PatientInfo(patient_id="P001", patient_sex="F")],
-        studies=[StudyInfo(study_instance_uid="S1")],
+        studies=[StudyInfo(study_instance_uid="S1", study_date="2020-01-02")],
         series=[
             SeriesInfo(
                 series_instance_uid="X1",
                 modality="CT",
                 collection="TEST",
                 patient_id="P001",
+                study_instance_uid="S1",
+                series_date="2020-01-03",
             )
         ],
         total_patients=1,
@@ -142,6 +144,7 @@ def test_export_manifest_csv():
         header = rows[0]
         assert "SeriesInstanceUID" in header
         assert "Modality" in header
+        assert rows[1][header.index("StudyDate")] == "2020-01-02"
     finally:
         os.unlink(path)
 

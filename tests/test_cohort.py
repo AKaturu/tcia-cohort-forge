@@ -56,6 +56,25 @@ def test_build_with_modality_filter(builder: CohortBuilder, mock_client: MagicMo
     assert manifest.series[0].modality == "CT"
 
 
+def test_build_deduplicates_overlapping_modality_results(
+    builder: CohortBuilder, mock_client: MagicMock
+):
+    patient = PatientInfo(patient_id="P1")
+    mock_client.get_patients_by_modality.side_effect = [[patient], [patient]]
+    study = StudyInfo(study_instance_uid="S1", patient_id="P1")
+    mock_client.get_studies.return_value = [study, study]
+    series = SeriesInfo(series_instance_uid="X1", modality="CT")
+    mock_client.get_series.return_value = [series, series]
+
+    manifest = builder.build(CohortCriteria(collection="TEST", modalities=["CT", "PT"]))
+
+    assert manifest.total_patients == 1
+    assert manifest.total_studies == 1
+    assert manifest.total_series == 1
+    mock_client.get_studies.assert_called_once_with("TEST", patient_id="P1")
+    mock_client.get_series.assert_called_once()
+
+
 def test_build_with_body_part_filter(builder: CohortBuilder, mock_client: MagicMock):
     mock_client.get_patients.return_value = [PatientInfo(patient_id="P1")]
     mock_client.get_studies.return_value = [

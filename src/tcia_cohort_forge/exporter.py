@@ -18,7 +18,7 @@ def export_series_csv(series: list[SeriesInfo], path: str) -> str:
     if dir_path:
         os.makedirs(dir_path, exist_ok=True)
 
-    with open(path, "w", newline="") as f:
+    with open(path, "w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
         writer.writerow(
             [
@@ -53,7 +53,13 @@ def export_manifest_csv(manifest: CohortManifest, path: str) -> str:
     if dir_path:
         os.makedirs(dir_path, exist_ok=True)
 
-    with open(path, "w", newline="") as f:
+    study_dates = {
+        study.study_instance_uid: study.study_date
+        for study in manifest.studies
+        if study.study_instance_uid
+    }
+
+    with open(path, "w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
         writer.writerow(
             [
@@ -77,7 +83,7 @@ def export_manifest_csv(manifest: CohortManifest, path: str) -> str:
                     s.patient_id,
                     _find_patient_sex(manifest, s.patient_id),
                     s.study_instance_uid,
-                    s.series_date,
+                    study_dates.get(s.study_instance_uid, ""),
                     s.series_instance_uid,
                     s.modality,
                     s.body_part_examined,
@@ -104,7 +110,7 @@ def export_manifest_json(manifest: CohortManifest, path: str) -> str:
         "studies": [s.model_dump() for s in manifest.studies],
         "series": [s.model_dump() for s in manifest.series],
     }
-    with open(path, "w") as f:
+    with open(path, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2)
     return path
 
@@ -114,7 +120,7 @@ def export_collections_csv(collections: list[CollectionInfo], path: str) -> str:
     if dir_path:
         os.makedirs(dir_path, exist_ok=True)
 
-    with open(path, "w", newline="") as f:
+    with open(path, "w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
         writer.writerow(["Collection", "PatientCount", "Authorized"])
         for c in collections:
@@ -127,7 +133,7 @@ def export_patients_csv(patients: list[PatientInfo], path: str) -> str:
     if dir_path:
         os.makedirs(dir_path, exist_ok=True)
 
-    with open(path, "w", newline="") as f:
+    with open(path, "w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
         writer.writerow(["PatientID", "PatientSex", "Collection", "Phantom"])
         for p in patients:
@@ -140,7 +146,7 @@ def export_studies_csv(studies: list[StudyInfo], path: str) -> str:
     if dir_path:
         os.makedirs(dir_path, exist_ok=True)
 
-    with open(path, "w", newline="") as f:
+    with open(path, "w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
         writer.writerow(
             [

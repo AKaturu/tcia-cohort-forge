@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import TypedDict
+from collections.abc import Callable, Iterable
+from typing import TypedDict, TypeVar
 
 from tcia_cohort_forge.client import NbiaClient
 from tcia_cohort_forge.models import (
@@ -25,7 +26,18 @@ class CollectionSummary(TypedDict):
 
 class CohortBuilder:
     def __init__(self, client: NbiaClient | None = None) -> None:
+        self._owns_client = client is None
         self.client = client or NbiaClient()
+
+    def close(self) -> None:
+        if self._owns_client:
+            self.client.close()
+
+    def __enter__(self) -> CohortBuilder:
+        return self
+
+    def __exit__(self, *_exc_info: object) -> None:
+        self.close()
 
     def build(self, criteria: CohortCriteria) -> CohortManifest:
         manifest = CohortManifest(criteria=criteria)
@@ -33,7 +45,7 @@ class CohortBuilder:
         if not criteria.collection:
             return manifest
 
-        patients = self._resolve_patients(criteria)
+        patients = _unique_by(self._resolve_patients(criteria), lambda patient: patient.patient_id)
         manifest.patients = patients
         manifest.total_patients = len(patients)
 
@@ -44,6 +56,7 @@ class CohortBuilder:
             studies.extend(
                 self.client.get_studies(criteria.collection, patient_id=pid)
             )
+        studies = _unique_by(studies, lambda study: study.study_instance_uid)
         manifest.studies = studies
         manifest.total_studies = len(studies)
 
@@ -67,6 +80,7 @@ class CohortBuilder:
                 s for s in series if s.body_part_examined.lower() in bp_lower
             ]
 
+        series = _unique_by(series, lambda item: item.series_instance_uid)
         manifest.series = series
         manifest.total_series = len(series)
         manifest.collections = [criteria.collection]
@@ -109,3 +123,19 @@ class CohortBuilder:
             "modality_list": [m.modality for m in modalities],
             "body_part_list": [b.body_part for b in body_parts],
         }
+
+
+_T = TypeVar("_T")
+
+
+def _unique_by(items: Iterable[_T], key: Callable[[_T], str]) -> list[_T]:
+    """Deduplicate stable nonempty identifiers while retaining source order."""
+    seen: set[str] = set()
+    unique: list[_T] = []
+    for item in items:
+        identity = key(item)
+        if not identity or identity not in seen:
+            unique.append(item)
+        if identity:
+            seen.add(identity)
+    return unique
