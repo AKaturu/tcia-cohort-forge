@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Upgraded CI and release workflows to Node 24-compatible immutable action revisions.
 - Pinned every GitHub Action dependency to an immutable commit SHA.
 - Reported optional series-size lookup failures instead of silently suppressing them.
 - Correct manifest `StudyDate` values by joining series to study metadata
